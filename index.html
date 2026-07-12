@@ -95,10 +95,24 @@
         });
     };
 
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById(pageId).classList.add('active-page');
+  // เปลี่ยนฟังก์ชัน showPage เป็นแบบนี้ครับ
+function showPage(pageId) {
+    // 1. ซ่อนทุกหน้า และแสดงเฉพาะหน้าที่เลือก
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+    document.getElementById(pageId).classList.add('active-page');
+
+    // 2. จัดการสีปุ่มเมนู (สีน้ำตาลเข้มสำหรับปุ่มที่เลือก, สีพื้นฐานสำหรับปุ่มที่ไม่เลือก)
+    const btn1 = document.getElementById('btnPage1');
+    const btn2 = document.getElementById('btnPage2');
+
+    if (pageId === 'page1') {
+        btn1.className = "px-6 py-2 rounded-full sub-btn-active font-semibold transition"; // สีเข้ม
+        btn2.className = "px-6 py-2 rounded-full btn-inactive font-semibold transition";  // สีพื้นฐาน
+    } else {
+        btn1.className = "px-6 py-2 rounded-full btn-inactive font-semibold transition";  // สีพื้นฐาน
+        btn2.className = "px-6 py-2 rounded-full sub-btn-active font-semibold transition"; // สีเข้ม
     }
+}
 
     function addData() {
         const sub = document.getElementById('sub').value, name = document.getElementById('name').value, rank = document.getElementById('rank').value;
