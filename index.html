@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Magic School Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #3b3529; font-family: 'Kanit', sans-serif; color: #6d5b4b; }
+        .card { background: #f3ebeb; border-radius: 24px; box-shadow: 0 4px 15px rgba(109, 91, 75, 0.1); border: 1px solid #efeae6; }
+        /* ปุ่มสลับสีน้ำตาล */
+        .btn-active { background-color: #d1bfae !important; color: white !important; }
+        .btn-inactive { border: 2px solid #f5eee8; color: #7a4e27; }
+        /* ตารางสไตล์มินิมอลสีน้ำตาล */
+        table { border-collapse: separate; border-spacing: 0 10px; }
+        th { color: #705f50; font-weight: 600; padding: 15px; border-bottom: 2px solid #efeae6; }
+        td { padding: 15px; background: #eeeae6; color: #221b15; }
+        .first-col { border-radius: 12px 0 0 12px; font-weight: bold; }SSS
+        .last-col { border-radius: 0 12px 12px 0; }
+        .page { display: none; }
+        .active-page { display: block; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+<div class="max-w-4xl mx-auto card p-8">
+    <h1 class="text-3xl font-bold text-center text-[#8e7a68] mb-8">ลำดับ</h1>
+
+    <!-- ปุ่มสลับหน้า -->
+    <div class="flex justify-center gap-4 mb-8">
+        <button id="btnPage1" onclick="showPage('page1')" class="px-6 py-2 rounded-full btn-active font-semibold">🔍 ค้นหาข้อมูล</button>
+        <button id="btnPage2" onclick="showPage('page2')" class="px-6 py-2 rounded-full btn-inactive font-semibold hover:bg-[#efeae6]">➕ เพิ่มข้อมูล</button>
+    </div>
+
+    <!-- หน้า 1: ค้นหาข้อมูล (เอาอันดับขึ้นก่อน) -->
+    <div id="page1" class="page active-page">
+        <input type="text" id="searchInput" onkeyup="searchByName()" placeholder="พิมพ์ค้นหารายชื่อนักเรียน..." class="w-full p-4 mb-6 rounded-xl border-2 border-[#efeae6] focus:border-[#d1bfae] outline-none">
+        <div id="tabContainer" class="flex flex-wrap justify-center gap-2 mb-8"></div>
+        <div id="currentSubjectDisplay" class="text-center font-semibold text-[#8e7a68] mb-4 uppercase tracking-wider">เลือกวิชาเพื่อแสดงผล</div>
+        <table class="w-full">
+            <thead><tr><th class="text-center">อันดับ</th><th class="text-left">ชื่อนักเรียน</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- หน้า 2: เพิ่มข้อมูล -->
+    <div id="page2" class="page">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <select id="sub" class="p-4 rounded-xl border-2 border-[#efeae6] bg-white">
+                <option>วิชาป้องกันตัวจากศาสตร์มืด</option>
+                <option>วิชาศิลปะชนชั้นสูง</option>
+                <option>วิชาปรุงยาและสมุนไพร</option>
+                <option>วิชาคาถาและเวทย์มนต์</option>
+                <option>วิชาการศึกษาและดูแลสัตว์วิเศษ</option>
+            </select>
+            <input type="text" id="name" placeholder="ชื่อนักเรียน" class="p-4 rounded-xl border-2 border-[#efeae6]">
+            <input type="number" id="rank" placeholder="อันดับ" class="p-4 rounded-xl border-2 border-[#efeae6]">
+            <button onclick="addData()" class="bg-[#d1bfae] text-white p-4 rounded-xl font-bold hover:opacity-90">บันทึกข้อมูล</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let data = JSON.parse(localStorage.getItem('magicData')) || [];
+    window.onload = renderTabs;
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(pageId).classList.add('active-page');
+        document.getElementById('btnPage1').className = pageId === 'page1' ? "px-6 py-2 rounded-full btn-active font-semibold" : "px-6 py-2 rounded-full btn-inactive font-semibold";
+        document.getElementById('btnPage2').className = pageId === 'page2' ? "px-6 py-2 rounded-full btn-active font-semibold" : "px-6 py-2 rounded-full btn-inactive font-semibold";
+    }
+
+    function addData() {
+        const sub = document.getElementById('sub').value;
+        const name = document.getElementById('name').value;
+        const rank = document.getElementById('rank').value;
+        if(sub && name && rank) {
+            data.push({sub, name, rank});
+            localStorage.setItem('magicData', JSON.stringify(data));
+            alert("บันทึกข้อมูลเรียบร้อย!");
+            renderTabs();
+        }
+    }
+
+    function renderTabs() {
+        const subjects = ["วิชาป้องกันตัวจากศาสตร์มืด", "วิชาศิลปะชนชั้นสูง", "วิชาปรุงยาและสมุนไพร", "วิชาคาถาและเวทย์มนต์", "วิชาการศึกษาและดูแลสัตว์วิเศษ"];
+        const container = document.getElementById('tabContainer');
+        container.innerHTML = subjects.map(sub => 
+            `<button onclick="setActiveSubject('${sub}')" id="btn-${sub.replace(/\s+/g, '')}" class="px-5 py-2 bg-white border-2 border-[#efeae6] rounded-full text-sm text-[#8e7a68] hover:bg-[#efeae6]">${sub}</button>`
+        ).join('');
+    }
+
+    function setActiveSubject(sub) {
+        document.querySelectorAll('#tabContainer button').forEach(btn => btn.style.backgroundColor = "white");
+        document.getElementById(`btn-${sub.replace(/\s+/g, '')}`).style.backgroundColor = "#efeae6";
+        document.getElementById('currentSubjectDisplay').innerText = sub;
+        renderTable(sub);
+    }
+
+    function renderTable(sub) {
+        const filtered = data.filter(item => item.sub === sub);
+        updateTable(filtered);
+    }
+
+    function searchByName() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = data.filter(item => item.name.toLowerCase().includes(query));
+        document.getElementById('currentSubjectDisplay').innerText = "ผลการค้นหา";
+        updateTable(filtered);
+    }
+
+    function updateTable(arr) {
+        const tbody = document.getElementById('tableBody');
+        // เรียงลำดับตัวเลขอันดับ (ถ้ามี)
+        arr.sort((a,b) => a.rank - b.rank);
+        tbody.innerHTML = arr.map(item => 
+            `<tr><td class="first-col text-center">${item.rank}</td><td class="last-col text-left">${item.name}</td></tr>`
+        ).join('');
+    }
+</script>
+</body>
+</html>
