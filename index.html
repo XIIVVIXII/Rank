@@ -15,7 +15,7 @@
         table { border-collapse: separate; border-spacing: 0 10px; }
         th { color: #705f50; font-weight: 600; padding: 15px; border-bottom: 2px solid #efeae6; }
         td { padding: 15px; background: #eeeae6; color: #221b15; }
-        .first-col { border-radius: 12px 0 0 12px; font-weight: bold; }SSS
+        .first-col { border-radius: 12px 0 0 12px; font-weight: bold; }
         .last-col { border-radius: 0 12px 12px 0; }
         .page { display: none; }
         .active-page { display: block; }
@@ -32,9 +32,9 @@
         <button id="btnPage2" onclick="showPage('page2')" class="px-6 py-2 rounded-full btn-inactive font-semibold hover:bg-[#efeae6]">➕ เพิ่มข้อมูล</button>
     </div>
 
-    <!-- หน้า 1: ค้นหาข้อมูล (เอาอันดับขึ้นก่อน) -->
+    <!-- หน้า 1: ค้นหาข้อมูล -->
     <div id="page1" class="page active-page">
-        <input type="text" id="searchInput" onkeyup="searchByName()" placeholder="พิมพ์ค้นหารายชื่อนักเรียน..." class="w-full p-4 mb-6 rounded-xl border-2 border-[#efeae6] focus:border-[#d1bfae] outline-none">
+        <input type="text" id="searchInput" onkeyup="searchByName()" placeholder="พิมพ์ค้นหารายชื่อนักเรียนหรืออันดับ..." class="w-full p-4 mb-6 rounded-xl border-2 border-[#efeae6] focus:border-[#d1bfae] outline-none">
         <div id="tabContainer" class="flex flex-wrap justify-center gap-2 mb-8"></div>
         <div id="currentSubjectDisplay" class="text-center font-semibold text-[#8e7a68] mb-4 uppercase tracking-wider">เลือกวิชาเพื่อแสดงผล</div>
         <table class="w-full">
@@ -62,6 +62,8 @@
 
 <script>
     let data = JSON.parse(localStorage.getItem('magicData')) || [];
+    let activeSub = ''; 
+
     window.onload = renderTabs;
 
     function showPage(pageId) {
@@ -92,27 +94,31 @@
     }
 
     function setActiveSubject(sub) {
-        document.querySelectorAll('#tabContainer button').forEach(btn => btn.style.backgroundColor = "white");
-        document.getElementById(`btn-${sub.replace(/\s+/g, '')}`).style.backgroundColor = "#efeae6";
+        activeSub = sub;
+        document.querySelectorAll('#tabContainer button').forEach(btn => {
+            btn.style.backgroundColor = "white";
+            btn.style.color = "#8e7a68";
+        });
+        const activeBtn = document.getElementById(`btn-${sub.replace(/\s+/g, '')}`);
+        activeBtn.style.backgroundColor = "#d1bfae";
+        activeBtn.style.color = "white";
+        
         document.getElementById('currentSubjectDisplay').innerText = sub;
-        renderTable(sub);
-    }
-
-    function renderTable(sub) {
-        const filtered = data.filter(item => item.sub === sub);
-        updateTable(filtered);
+        searchByName(); 
     }
 
     function searchByName() {
         const query = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = data.filter(item => item.name.toLowerCase().includes(query));
-        document.getElementById('currentSubjectDisplay').innerText = "ผลการค้นหา";
+        const filtered = data.filter(item => {
+            const matchesSub = activeSub ? item.sub === activeSub : true;
+            const matchesNameOrRank = item.name.toLowerCase().includes(query) || item.rank.toString().includes(query);
+            return matchesSub && matchesNameOrRank;
+        });
         updateTable(filtered);
     }
 
     function updateTable(arr) {
         const tbody = document.getElementById('tableBody');
-        // เรียงลำดับตัวเลขอันดับ (ถ้ามี)
         arr.sort((a,b) => a.rank - b.rank);
         tbody.innerHTML = arr.map(item => 
             `<tr><td class="first-col text-center">${item.rank}</td><td class="last-col text-left">${item.name}</td></tr>`
