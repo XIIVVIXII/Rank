@@ -8,10 +8,8 @@
     <style>
         body { background-color: #3b3529; font-family: 'Kanit', sans-serif; color: #6d5b4b; }
         .card { background: #f3ebeb; border-radius: 24px; box-shadow: 0 4px 15px rgba(109, 91, 75, 0.1); border: 1px solid #efeae6; }
-        /* ปุ่มสลับสีน้ำตาล */
         .btn-active { background-color: #d1bfae !important; color: white !important; }
         .btn-inactive { border: 2px solid #f5eee8; color: #7a4e27; }
-        /* ตารางสไตล์มินิมอลสีน้ำตาล */
         table { border-collapse: separate; border-spacing: 0 10px; }
         th { color: #705f50; font-weight: 600; padding: 15px; border-bottom: 2px solid #efeae6; }
         td { padding: 15px; background: #eeeae6; color: #221b15; }
@@ -26,13 +24,11 @@
 <div class="max-w-4xl mx-auto card p-8">
     <h1 class="text-3xl font-bold text-center text-[#8e7a68] mb-8">ลำดับ</h1>
 
-    <!-- ปุ่มสลับหน้า -->
     <div class="flex justify-center gap-4 mb-8">
         <button id="btnPage1" onclick="showPage('page1')" class="px-6 py-2 rounded-full btn-active font-semibold">🔍 ค้นหาข้อมูล</button>
         <button id="btnPage2" onclick="showPage('page2')" class="px-6 py-2 rounded-full btn-inactive font-semibold hover:bg-[#efeae6]">➕ เพิ่มข้อมูล</button>
     </div>
 
-    <!-- หน้า 1: ค้นหาข้อมูล -->
     <div id="page1" class="page active-page">
         <input type="text" id="searchInput" onkeyup="searchByName()" placeholder="พิมพ์ค้นหารายชื่อนักเรียนหรืออันดับ..." class="w-full p-4 mb-6 rounded-xl border-2 border-[#efeae6] focus:border-[#d1bfae] outline-none">
         <div id="tabContainer" class="flex flex-wrap justify-center gap-2 mb-8"></div>
@@ -43,7 +39,6 @@
         </table>
     </div>
 
-    <!-- หน้า 2: เพิ่มข้อมูล -->
     <div id="page2" class="page">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <select id="sub" class="p-4 rounded-xl border-2 border-[#efeae6] bg-white">
@@ -60,7 +55,27 @@
     </div>
 </div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAWfL9dyR1xM7PKZX3pUKR8balroSAZGk",
+      authDomain: "rnak-63e43.firebaseapp.com",
+      databaseURL: "https://rnak-63e43-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "rnak-63e43",
+      storageBucket: "rnak-63e43.firebasestorage.app",
+      messagingSenderId: "131670077086",
+      appId: "1:131670077086:web:74e623d876c3309d14958f",
+      measurementId: "G-GR5QG2618E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+</script>
+
 <script>
+    // ส่วนดึงข้อมูลเก่ากลับมาทำงาน
     let data = JSON.parse(localStorage.getItem('magicData')) || [];
     let activeSub = ''; 
 
@@ -100,9 +115,10 @@
             btn.style.color = "#8e7a68";
         });
         const activeBtn = document.getElementById(`btn-${sub.replace(/\s+/g, '')}`);
-        activeBtn.style.backgroundColor = "#d1bfae";
-        activeBtn.style.color = "white";
-        
+        if(activeBtn) {
+            activeBtn.style.backgroundColor = "#d1bfae";
+            activeBtn.style.color = "white";
+        }
         document.getElementById('currentSubjectDisplay').innerText = sub;
         searchByName(); 
     }
